@@ -1,0 +1,1 @@
+{"42545": "Material", "189": "theta8", "287": "sulphates", "42636": "x18", "42688": "area", "1199": "wall_index", "197": "pgin", "218": "P3", "42712": "humidity", "1193": "UI", "216": "climbRate", "23395": "wire_id", "42225": "carat", "1200": "company1", "1213": "x5"}

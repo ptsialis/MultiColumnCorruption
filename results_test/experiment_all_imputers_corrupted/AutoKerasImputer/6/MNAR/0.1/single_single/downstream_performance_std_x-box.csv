@@ -1,0 +1,4 @@
+,baseline,corrupted,imputed
+F1_micro,0.0,0.0,0.0
+F1_macro,0.0,0.0,0.0
+F1_weighted,1.3597399555105182e-16,0.0,1.3597399555105182e-16

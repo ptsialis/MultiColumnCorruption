@@ -1,0 +1,1 @@
+{"42545": "Material", "287": "sulphates", "42636": "x18", "1199": "wall_index", "218": "P3", "42712": "humidity", "216": "climbRate", "23395": "wire_id", "42225": "carat", "1213": "x5"}

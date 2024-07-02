@@ -1,0 +1,8 @@
+flake8
+autokeras
+flake8-mypy
+pydocstyle
+tensorflow
+openml
+typer
+jedi==0.17.2

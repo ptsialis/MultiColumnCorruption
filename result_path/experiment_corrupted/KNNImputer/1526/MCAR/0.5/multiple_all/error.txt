@@ -1,0 +1,227 @@
+Traceback (most recent call last):
+  File "/home/ptsialis/Schreibtisch/MultiColumnCorruption-master/src/data_imputation_paper/experiment.py", line 135, in run
+    evaluator.evaluate(self._num_repetitions)
+  File "/home/ptsialis/Schreibtisch/MultiColumnCorruption-master/src/data_imputation_paper/evaluation_corrupted.py", line 307, in evaluate
+    base_model = self._task.fit_baseline_model(train_data_corrupted.copy(), self._task.train_labels)
+  File "/home/ptsialis/Schreibtisch/MultiColumnCorruption-master/src/jenga/src/jenga/basis.py", line 195, in fit_baseline_model
+    model = search.fit(train_data, train_labels).best_estimator_
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1151, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_search.py", line 898, in fit
+    self._run_search(evaluate_candidates)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_search.py", line 1419, in _run_search
+    evaluate_candidates(ParameterGrid(self.param_grid))
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_search.py", line 875, in evaluate_candidates
+    _warn_or_raise_about_fit_failures(out, self.error_score)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_validation.py", line 414, in _warn_or_raise_about_fit_failures
+    raise ValueError(all_fits_failed_message)
+ValueError: 
+All the 2700 fits failed.
+It is very likely that your model is misconfigured.
+You can try to debug the error by setting error_score='raise'.
+
+Below are more details about the failures:
+--------------------------------------------------------------------------------
+269 fits failed with the following error:
+Traceback (most recent call last):
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_validation.py", line 732, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1151, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/pipeline.py", line 420, in fit
+    self._final_estimator.fit(Xt, y, **fit_params_last_step)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1144, in wrapper
+    estimator._validate_params()
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 637, in _validate_params
+    validate_parameter_constraints(
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'solver' parameter of MLPClassifier must be a str among {'adam', 'lbfgs', 'sgd'}. Got 'tanh' instead.
+
+--------------------------------------------------------------------------------
+320 fits failed with the following error:
+Traceback (most recent call last):
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_validation.py", line 732, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1151, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/pipeline.py", line 420, in fit
+    self._final_estimator.fit(Xt, y, **fit_params_last_step)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1144, in wrapper
+    estimator._validate_params()
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 637, in _validate_params
+    validate_parameter_constraints(
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'solver' parameter of MLPClassifier must be a str among {'sgd', 'lbfgs', 'adam'}. Got 'tanh' instead.
+
+--------------------------------------------------------------------------------
+263 fits failed with the following error:
+Traceback (most recent call last):
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_validation.py", line 732, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1151, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/pipeline.py", line 420, in fit
+    self._final_estimator.fit(Xt, y, **fit_params_last_step)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1144, in wrapper
+    estimator._validate_params()
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 637, in _validate_params
+    validate_parameter_constraints(
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'solver' parameter of MLPClassifier must be a str among {'adam', 'lbfgs', 'sgd'}. Got 'relu' instead.
+
+--------------------------------------------------------------------------------
+434 fits failed with the following error:
+Traceback (most recent call last):
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_validation.py", line 732, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1151, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/pipeline.py", line 420, in fit
+    self._final_estimator.fit(Xt, y, **fit_params_last_step)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1144, in wrapper
+    estimator._validate_params()
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 637, in _validate_params
+    validate_parameter_constraints(
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'solver' parameter of MLPClassifier must be a str among {'sgd', 'adam', 'lbfgs'}. Got 'tanh' instead.
+
+--------------------------------------------------------------------------------
+310 fits failed with the following error:
+Traceback (most recent call last):
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_validation.py", line 732, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1151, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/pipeline.py", line 420, in fit
+    self._final_estimator.fit(Xt, y, **fit_params_last_step)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1144, in wrapper
+    estimator._validate_params()
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 637, in _validate_params
+    validate_parameter_constraints(
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'solver' parameter of MLPClassifier must be a str among {'sgd', 'lbfgs', 'adam'}. Got 'relu' instead.
+
+--------------------------------------------------------------------------------
+427 fits failed with the following error:
+Traceback (most recent call last):
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_validation.py", line 732, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1151, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/pipeline.py", line 420, in fit
+    self._final_estimator.fit(Xt, y, **fit_params_last_step)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1144, in wrapper
+    estimator._validate_params()
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 637, in _validate_params
+    validate_parameter_constraints(
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'solver' parameter of MLPClassifier must be a str among {'sgd', 'adam', 'lbfgs'}. Got 'relu' instead.
+
+--------------------------------------------------------------------------------
+129 fits failed with the following error:
+Traceback (most recent call last):
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_validation.py", line 732, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1151, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/pipeline.py", line 420, in fit
+    self._final_estimator.fit(Xt, y, **fit_params_last_step)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1144, in wrapper
+    estimator._validate_params()
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 637, in _validate_params
+    validate_parameter_constraints(
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'solver' parameter of MLPClassifier must be a str among {'lbfgs', 'sgd', 'adam'}. Got 'tanh' instead.
+
+--------------------------------------------------------------------------------
+146 fits failed with the following error:
+Traceback (most recent call last):
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_validation.py", line 732, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1151, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/pipeline.py", line 420, in fit
+    self._final_estimator.fit(Xt, y, **fit_params_last_step)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1144, in wrapper
+    estimator._validate_params()
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 637, in _validate_params
+    validate_parameter_constraints(
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'solver' parameter of MLPClassifier must be a str among {'lbfgs', 'sgd', 'adam'}. Got 'relu' instead.
+
+--------------------------------------------------------------------------------
+107 fits failed with the following error:
+Traceback (most recent call last):
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_validation.py", line 732, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1151, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/pipeline.py", line 420, in fit
+    self._final_estimator.fit(Xt, y, **fit_params_last_step)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1144, in wrapper
+    estimator._validate_params()
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 637, in _validate_params
+    validate_parameter_constraints(
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'solver' parameter of MLPClassifier must be a str among {'adam', 'sgd', 'lbfgs'}. Got 'tanh' instead.
+
+--------------------------------------------------------------------------------
+108 fits failed with the following error:
+Traceback (most recent call last):
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_validation.py", line 732, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1151, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/pipeline.py", line 420, in fit
+    self._final_estimator.fit(Xt, y, **fit_params_last_step)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1144, in wrapper
+    estimator._validate_params()
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 637, in _validate_params
+    validate_parameter_constraints(
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'solver' parameter of MLPClassifier must be a str among {'adam', 'sgd', 'lbfgs'}. Got 'relu' instead.
+
+--------------------------------------------------------------------------------
+96 fits failed with the following error:
+Traceback (most recent call last):
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_validation.py", line 732, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1151, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/pipeline.py", line 420, in fit
+    self._final_estimator.fit(Xt, y, **fit_params_last_step)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1144, in wrapper
+    estimator._validate_params()
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 637, in _validate_params
+    validate_parameter_constraints(
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'solver' parameter of MLPClassifier must be a str among {'lbfgs', 'adam', 'sgd'}. Got 'relu' instead.
+
+--------------------------------------------------------------------------------
+91 fits failed with the following error:
+Traceback (most recent call last):
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/model_selection/_validation.py", line 732, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1151, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/pipeline.py", line 420, in fit
+    self._final_estimator.fit(Xt, y, **fit_params_last_step)
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 1144, in wrapper
+    estimator._validate_params()
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/base.py", line 637, in _validate_params
+    validate_parameter_constraints(
+  File "/home/ptsialis/.conda/envs/Data-Imputation-Thesis/lib/python3.8/site-packages/sklearn/utils/_param_validation.py", line 95, in validate_parameter_constraints
+    raise InvalidParameterError(
+sklearn.utils._param_validation.InvalidParameterError: The 'solver' parameter of MLPClassifier must be a str among {'lbfgs', 'adam', 'sgd'}. Got 'tanh' instead.
+

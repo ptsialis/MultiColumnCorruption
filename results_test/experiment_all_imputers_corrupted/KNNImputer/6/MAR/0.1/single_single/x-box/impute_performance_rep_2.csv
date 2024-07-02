@@ -1,0 +1,4 @@
+,train,test
+MAE,1.0,1.0
+MSE,1.0,0.0
+RMSE,1.0,0.0

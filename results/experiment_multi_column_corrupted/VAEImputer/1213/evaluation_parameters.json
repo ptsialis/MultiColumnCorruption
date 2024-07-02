@@ -1,0 +1,1 @@
+{"missing_types": ["MAR", "MCAR", "MNAR"], "missing_fractions": [0.01, 0.1, 0.3, 0.5], "strategy": ["single_all"]}
