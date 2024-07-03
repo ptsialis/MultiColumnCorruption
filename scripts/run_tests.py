@@ -24,12 +24,12 @@ print(os.getcwd())
 multi_task_id_mappings = json.loads(Path("./data/raw/multi.txt").read_text())
 MULTI_TASK_IDS = [int(x) for x in multi_task_id_mappings.keys()]
 
-methods = ["mode", "knn", "forest"] #, "dl" "gain", "vae"]
+methods = ["mode"] #, "knn", "forest", "dl" "gain", "vae"]
 
 
 for i in MULTI_TASK_IDS:
     for j in methods:
-        os.system(f"python ./scripts/run-experiment.py {i} {j} corrupted_multi_experiment --missing-fractions 0.01,0.1,0.3,0.5 --missing-types MCAR,MAR,MNAR --strategies single_all --num-repetitions 3 --base-path ../results")
+        os.system(f"python ./scripts/run-experiment.py {i} {j} corrupted_multi_experiment_MLP --missing-fractions 0.5 --missing-types MCAR --strategies single_all --num-repetitions 3 --base-path ../results")
 
         
 # # Regression Experiments

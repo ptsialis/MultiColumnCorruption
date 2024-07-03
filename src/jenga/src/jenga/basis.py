@@ -199,6 +199,7 @@ class Task(ABC):
             print("only set baseline model attribute if it is trained on the original task data")
             self._baseline_model = model
 
+        #print(model)
         return model
 
     @abstractmethod
@@ -334,15 +335,15 @@ class BinaryClassificationTask(Task):
             Tuple[Dict[str, object], Any, Dict[str, Any]]: Binary classification specific parts to build baseline model
         """
         
-        # parameter_grid for SGDClassifier
-        # param_grid = {
-        #     'learner__loss': ['log_loss'],
-        #     'learner__penalty': ['l2'],
-        #     'learner__alpha': [0.00001, 0.0001, 0.001, 0.01]
-        # }
+        #parameter_grid for SGDClassifier
+        param_grid = {
+            'learner__loss': ['log_loss'],
+            'learner__penalty': ['l2'],
+            'learner__alpha': [0.00001, 0.0001, 0.001, 0.01]
+        }
 
         rng = np.random.RandomState(5)
-        param_grid = {'learner__solver': ['lbfgs'], 'learner__max_iter': [1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000 ], 'learner__alpha': 10.0 ** -np.arange(1, 10), 'learner__hidden_layer_sizes':np.arange(10, 15), 'learner__random_state':[0,1,2,3,4,5,6,7,8,9]}
+        # param_grid = {'learner__solver': ['lbfgs'], 'learner__max_iter': [1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000 ], 'learner__alpha': 10.0 ** -np.arange(1, 10), 'learner__hidden_layer_sizes':np.arange(10, 15), 'learner__random_state':[0,1,2,3,4,5,6,7,8,9]}
 
 
 
@@ -351,8 +352,8 @@ class BinaryClassificationTask(Task):
         pipeline = Pipeline(
             [
                 ('features', feature_transformation),
-                #('learner', SGDClassifier(max_iter=1000, n_jobs=-1, random_state=rng))#PD
-                ('learner', MLPClassifier(max_iter=3000, random_state=rng))
+                ('learner', SGDClassifier(max_iter=1000, n_jobs=-1, random_state=rng))#PD
+                #('learner', MLPClassifier(max_iter=3000, random_state=rng))
                 
             ]
         )
@@ -476,14 +477,7 @@ class MultiClassClassificationTask(Task):
         #     'learner__alpha': [0.00001, 0.0001, 0.001, 0.01]
         # }
 
-        # param_grid = {
-        # 'hidden_layer_sizes': [(10,30,10),(20,)],
-        # #'activation': ['tanh', 'relu'],
-        # 'solver': ['sgd', 'adam'],
-        # #'alpha': [0.0001, 0.05],
-        # 'learning_rate': ['constant','adaptive'],
-        # }
-
+        
         rng = np.random.RandomState(5)
         param_grid = {'learner__solver': ['sgd', 'adam'], 'learner__max_iter': [2000,3000], 'learner__alpha': [0.0001, 0.05], 'learner__hidden_layer_sizes':[(10,30,10),(20,)], 'learner__random_state':[0,1,2]} 
  
