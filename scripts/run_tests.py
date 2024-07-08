@@ -8,28 +8,28 @@ import json
 
 # Binary Experiments
 
-# binary_task_id_mappings = json.loads(Path("./data/raw/binary.txt").read_text())
-# BINARY_TASK_IDS = [int(x) for x in binary_task_id_mappings.keys()]
+binary_task_id_mappings = json.loads(Path("./data/raw/binary.txt").read_text())
+BINARY_TASK_IDS = [int(x) for x in binary_task_id_mappings.keys()]
 
-# methods = ["mode", "knn", "forest", "dl", "gain", "vae"]
+methods = ["knn"] #, "knn", "forest", "dl", "gain", "vae"]
 print(os.getcwd()) 
 
-# for i in BINARY_TASK_IDS:
-#     for j in methods:
-#         os.system(f"python ./scripts/run-experiment.py {i} {j} corrupted_binary_experiment --missing-fractions 0.01,0.1,0.3,0.5 --missing-types MCAR,MAR,MNAR --strategies single_single --num-repetitions 3 --base-path ../results")
-
-# Multi Experiments
+for i in BINARY_TASK_IDS:
+    for j in methods:
+        os.system(f"python ./scripts/run-experiment.py {i} {j} binary_experiment --missing-fractions 0.5 --missing-types MCAR --strategies single_all --num-repetitions 3 --base-path ../results")
+        break
+#Multi Experiments
 
 
 multi_task_id_mappings = json.loads(Path("./data/raw/multi.txt").read_text())
 MULTI_TASK_IDS = [int(x) for x in multi_task_id_mappings.keys()]
 
-methods = ["mode"] #, "knn", "forest", "dl" "gain", "vae"]
+methods = ["knn"] #, "knn", "forest", "dl" "gain", "vae"]
 
 
 for i in MULTI_TASK_IDS:
     for j in methods:
-        os.system(f"python ./scripts/run-experiment.py {i} {j} corrupted_multi_experiment_MLP --missing-fractions 0.5 --missing-types MCAR --strategies single_all --num-repetitions 3 --base-path ../results")
+        os.system(f"python ./scripts/run-experiment.py {i} {j} multi_experiment --missing-fractions 0.5 --missing-types MCAR --strategies single_all --num-repetitions 3 --base-path ../results")
 
         
 # # Regression Experiments
@@ -37,13 +37,13 @@ for i in MULTI_TASK_IDS:
 # regression_task_id_mappings = json.loads(Path("./data/raw/regression.txt").read_text())
 # REGRESSION_TASK_IDS = [int(x) for x in regression_task_id_mappings.keys()]
 
-# methods = ["mode", "knn", "forest", "dl", "gain", "vae"]
+# methods = ["mode"] #, "knn", "forest", "dl", "gain", "vae"]
 
 
 
 # for i in REGRESSION_TASK_IDS:
 #     for j in methods:
-#         os.system(f"python ./scripts/run-experiment-subset.py {i} {j} corrupted_regression_experiment --missing-fractions 0.01,0.1,0.3,0.5 --missing-types MCAR,MAR,MNAR --strategies single_single --num-repetitions 3 --base-path ../results")
+#         os.system(f"python ./scripts/run-experiment-subset.py {i} {j} regression_experiment --missing-fractions 0.5 --missing-types MCAR --strategies single_all --num-repetitions 3 --base-path ../results")
 
 
 

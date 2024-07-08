@@ -10,8 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["1526", "knn", "corrupted_multi_experiment3", "--missing-fractions=0.5","--missing-types=MCAR","--strategies=multiple_all", "--num-repetitions=3", "--base-path=../results"]
-            
+            "args": ["184", "mode", "automl_test", "--missing-fractions=0.5","--missing-types=MCAR","--strategies=single_all", "--num-repetitions=3", "--base-path=../results"]
         }
     ]
 }

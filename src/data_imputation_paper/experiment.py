@@ -34,6 +34,7 @@ class Experiment(object):
         base_path: str = "results",
         timestamp: Optional[str] = None,
         fully_observed: bool = True,
+        
 #        subset_exp: bool = False,
         seed: int = 42
     ):

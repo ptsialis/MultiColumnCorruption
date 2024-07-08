@@ -3,6 +3,16 @@ import random
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple
 
+
+from typing import Optional
+from pprint import pprint
+
+import autosklearn.classification
+import autosklearn.pipeline.components.data_preprocessing
+import sklearn.metrics
+from ConfigSpace.configuration_space import ConfigurationSpace
+
+
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator
@@ -10,6 +20,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import SGDClassifier, SGDRegressor
 from sklearn.neural_network import MLPClassifier,MLPRegressor
+import autosklearn.classification
 from sklearn.metrics import (
     f1_score,
     make_scorer,
@@ -141,16 +152,16 @@ class Task(ABC):
         
         categorical_preprocessing = Pipeline(
             [
-                #('mark_missing', SimpleImputer(strategy='most_frequent')),# If there is more than one such value, only the smallest is returned.
-                ('mark_missing', SimpleImputer(strategy='constant', fill_value='__NA__')),
+                ('mark_missing', SimpleImputer(strategy='most_frequent')),# If there is more than one such value, only the smallest is returned.
+                #('mark_missing', SimpleImputer(strategy='constant', fill_value='__NA__')),
                 ('one_hot_encode', OneHotEncoder(handle_unknown='ignore'))
             ]
         )
 
         numerical_preprocessing = Pipeline(
             [
-                #('mark_missing', SimpleImputer(strategy='mean')),
-                ('mark_missing', SimpleImputer(strategy='constant', fill_value=0)),
+                ('mark_missing', SimpleImputer(strategy='mean')),
+                #('mark_missing', SimpleImputer(strategy='constant', fill_value=0)),
                 ('scaling',  StandardScaler())
             ]
         )
@@ -185,22 +196,33 @@ class Task(ABC):
         }
         '''
 
-        param_grid, pipeline, scorer = self._get_pipeline_grid_scorer_tuple(feature_transformation)
+        param_grid, pipeline, scorer, automl = self._get_pipeline_grid_scorer_tuple(feature_transformation)
         refit = list(scorer.keys())[0]
 
-        search = GridSearchCV(pipeline, param_grid, scoring=scorer, n_jobs=-1, refit=refit)
         #search = GridSearchCV(pipeline, param_grid, scoring=scorer, n_jobs=-1, refit=refit)
+    
+        #model = search.fit(train_data, train_labels).best_estimator_
 
         
-        model = search.fit(train_data, train_labels).best_estimator_
+
+        
+        transformed_data = feature_transformation.fit_transform(train_data)
+        print(train_data)
+        print(transformed_data)
+        
+        a=pd.DataFrame(transformed_data)
+        a.to_csv("trasnformed_data_form_basis.csv")
+        model = automl.fit(train_data,train_labels)
+        
+
 
         # only set baseline model attribute if it is trained on the original task data
         if use_original_data:
             print("only set baseline model attribute if it is trained on the original task data")
             self._baseline_model = model
 
-        #print(model)
-        return model
+        
+        return model 
 
     @abstractmethod
     def _check_data(self):
@@ -337,7 +359,7 @@ class BinaryClassificationTask(Task):
         
         #parameter_grid for SGDClassifier
         param_grid = {
-            'learner__loss': ['log_loss'],
+            'learner__loss': ['log'],
             'learner__penalty': ['l2'],
             'learner__alpha': [0.00001, 0.0001, 0.001, 0.01]
         }
@@ -352,7 +374,7 @@ class BinaryClassificationTask(Task):
         pipeline = Pipeline(
             [
                 ('features', feature_transformation),
-                ('learner', SGDClassifier(max_iter=1000, n_jobs=-1, random_state=rng))#PD
+                #('learner', SGDClassifier(max_iter=1000, n_jobs=-1, random_state=rng))#PD
                 #('learner', MLPClassifier(max_iter=3000, random_state=rng))
                 
             ]
@@ -362,7 +384,23 @@ class BinaryClassificationTask(Task):
             "F1": make_scorer(f1_score, average="macro")
         }
 
-        return param_grid, pipeline, scorer
+        cls = autosklearn.classification.AutoSklearnClassifier(
+            time_left_for_this_task=120,
+            per_run_time_limit=60,
+            memory_limit=4096,
+            # We will limit the configuration space only to
+            # have RandomForest as a valid model. We recommend enabling all
+            # possible models to get a better performance.
+            include={
+                     'classifier': ["random_forest"],
+                     'feature_preprocessor': ["no_preprocessing"],
+                     'data_preprocessor': ['NoPreprocessing'],
+
+                     },
+            delete_tmp_folder_after_terminate=True,
+            )
+
+        return param_grid, pipeline, scorer, cls
 
     def get_baseline_performance(self) -> float:
         """
@@ -471,15 +509,15 @@ class MultiClassClassificationTask(Task):
             Tuple[Dict[str, object], Any, Dict[str, Any]]: Multi-class classification specific parts to build baseline model
         """
         # parameter grid for SGDClassifier
-        # param_grid = {
-        #     'learner__loss': ['log_loss'],
-        #     'learner__penalty': ['l2'],
-        #     'learner__alpha': [0.00001, 0.0001, 0.001, 0.01]
-        # }
+        param_grid = {
+            'learner__loss': ['log'],
+            'learner__penalty': ['l2'],
+            'learner__alpha': [0.00001, 0.0001, 0.001, 0.01]
+        }
 
         
         rng = np.random.RandomState(5)
-        param_grid = {'learner__solver': ['sgd', 'adam'], 'learner__max_iter': [2000,3000], 'learner__alpha': [0.0001, 0.05], 'learner__hidden_layer_sizes':[(10,30,10),(20,)], 'learner__random_state':[0,1,2]} 
+        #param_grid = {'learner__solver': ['sgd', 'adam'], 'learner__max_iter': [2000,3000], 'learner__alpha': [0.0001, 0.05], 'learner__hidden_layer_sizes':[(10,30,10),(20,)], 'learner__random_state':[0,1,2]} 
  
         #10.0 ** -np.arange(1, 10)     np.arange(10, 15)
 
@@ -488,16 +526,33 @@ class MultiClassClassificationTask(Task):
         pipeline = Pipeline(
             [
                 ('features', feature_transformation),
-                #('learner', SGDClassifier(max_iter=1000, n_jobs=-1, random_state=rng))#PD
-                ('learner', MLPClassifier(max_iter=3000))
+               #('learner', SGDClassifier(max_iter=1000, n_jobs=-1, random_state=rng))#PD
+                #('learner', MLPClassifier(max_iter=3000))
             ]
         )
 
         scorer = {
             "F1": make_scorer(f1_score, average="macro")
         }
+        
 
-        return param_grid, pipeline, scorer
+        
+
+        automl = autosklearn.classification.AutoSklearnClassifier(
+            time_left_for_this_task=1*60,
+            memory_limit=8096,
+            per_run_time_limit=30,
+            n_jobs=-1,
+            include={
+                #"data_preprocessor": ["NoPreprocessing"],
+                "classifier": ["random_forest"],
+                "feature_preprocessor": ["no_preprocessing"],
+                    }
+        )
+
+
+
+        return param_grid, pipeline, scorer, automl
 
     def get_baseline_performance(self) -> float:
         """
@@ -603,31 +658,31 @@ class RegressionTask(Task):
         Returns:
             Tuple[Dict[str, object], Any, Dict[str, Any]]: Regression specific parts to build baseline model
         """
-        # parameter grid for SGDRegressor
-        # param_grid = {
-        #     'learner__loss': ['squared_loss', 'huber'],
-        #     'learner__penalty': ['l2'],
-        #     'learner__alpha': [0.00001, 0.0001, 0.001, 0.01]
-        # }
-
+        #parameter grid for SGDRegressor
         param_grid = {
-        'hidden_layer_sizes': [(10,30,10),(20,)],
-        'activation': ['tanh', 'relu'],
-        'solver': ['sgd', 'adam'],
-        'alpha': [0.0001, 0.05],
-        'learning_rate': ['constant','adaptive'],
+            'learner__loss': ['squared_loss', 'huber'],
+            'learner__penalty': ['l2'],
+            'learner__alpha': [0.00001, 0.0001, 0.001, 0.01]
         }
 
+        # param_grid = {
+        # 'hidden_layer_sizes': [(10,30,10),(20,)],
+        # 'activation': ['tanh', 'relu'],
+        # 'solver': ['sgd', 'adam'],
+        # 'alpha': [0.0001, 0.05],
+        # 'learning_rate': ['constant','adaptive'],
+        # }
+
         
-        param_grid = {'learner__solver': ['lbfgs'], 'learner__max_iter': [1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000 ], 'learner__alpha': 10.0 ** -np.arange(1, 10), 'learner__hidden_layer_sizes':np.arange(10, 15), 'learner__random_state':[0,1,2,3,4,5,6,7,8,9]} 
+        #param_grid = {'learner__solver': ['lbfgs'], 'learner__max_iter': [1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000 ], 'learner__alpha': 10.0 ** -np.arange(1, 10), 'learner__hidden_layer_sizes':np.arange(10, 15), 'learner__random_state':[0,1,2,3,4,5,6,7,8,9]} 
 
         rng = np.random.RandomState(5) #PD 
 #        print(rng, "random seed for SGD #regressor") #PD
         pipeline = Pipeline(
             [
                 ('features', feature_transformation),
-                #('learner', SGDRegressor(max_iter=1000, random_state=rng))
-                ('learner', MLPRegressor(max_iter=3000))
+                ('learner', SGDRegressor(max_iter=1000, random_state=rng))
+                #('learner', MLPRegressor(max_iter=3000))
             ]
         )
 
