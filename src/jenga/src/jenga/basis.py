@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Optional, Tuple
 from typing import Optional
 from pprint import pprint
 
-import autosklearn.classification
-import autosklearn.pipeline.components.data_preprocessing
+#import autosklearn.classification
+#import autosklearn.pipeline.components.data_preprocessing
 import sklearn.metrics
 from ConfigSpace.configuration_space import ConfigurationSpace
 
@@ -20,7 +20,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import SGDClassifier, SGDRegressor
 from sklearn.neural_network import MLPClassifier,MLPRegressor
-import autosklearn.classification
+#import autosklearn.classification
 from sklearn.metrics import (
     f1_score,
     make_scorer,
@@ -196,23 +196,23 @@ class Task(ABC):
         }
         '''
 
-        param_grid, pipeline, scorer, automl = self._get_pipeline_grid_scorer_tuple(feature_transformation)
+        param_grid, pipeline, scorer = self._get_pipeline_grid_scorer_tuple(feature_transformation)
         refit = list(scorer.keys())[0]
-
-        #search = GridSearchCV(pipeline, param_grid, scoring=scorer, n_jobs=-1, refit=refit)
+        #train_data.to_csv("TESTDITT.csv")
+        search = GridSearchCV(pipeline, param_grid, scoring=scorer, n_jobs=-1, refit=refit)
     
-        #model = search.fit(train_data, train_labels).best_estimator_
+        model = search.fit(train_data, train_labels).best_estimator_
 
         
 
         
-        transformed_data = feature_transformation.fit_transform(train_data)
-        print(train_data)
-        print(transformed_data)
+        #transformed_data = feature_transformation.fit_transform(train_data)
+        #print(train_data)
+        #print(transformed_data)
         
-        a=pd.DataFrame(transformed_data)
-        a.to_csv("trasnformed_data_form_basis.csv")
-        model = automl.fit(train_data,train_labels)
+        #a=pd.DataFrame(transformed_data)
+        #a.to_csv("trasnformed_data_form_basis.csv")
+        #model = automl.fit(train_data,train_labels)
         
 
 
@@ -374,7 +374,7 @@ class BinaryClassificationTask(Task):
         pipeline = Pipeline(
             [
                 ('features', feature_transformation),
-                #('learner', SGDClassifier(max_iter=1000, n_jobs=-1, random_state=rng))#PD
+                ('learner', SGDClassifier(max_iter=1000, n_jobs=-1, random_state=rng))#PD
                 #('learner', MLPClassifier(max_iter=3000, random_state=rng))
                 
             ]
@@ -384,23 +384,23 @@ class BinaryClassificationTask(Task):
             "F1": make_scorer(f1_score, average="macro")
         }
 
-        cls = autosklearn.classification.AutoSklearnClassifier(
-            time_left_for_this_task=120,
-            per_run_time_limit=60,
-            memory_limit=4096,
-            # We will limit the configuration space only to
-            # have RandomForest as a valid model. We recommend enabling all
-            # possible models to get a better performance.
-            include={
-                     'classifier': ["random_forest"],
-                     'feature_preprocessor': ["no_preprocessing"],
-                     'data_preprocessor': ['NoPreprocessing'],
+        # cls = autosklearn.classification.AutoSklearnClassifier(
+        #     time_left_for_this_task=120,
+        #     per_run_time_limit=60,
+        #     memory_limit=4096,
+        #     # We will limit the configuration space only to
+        #     # have RandomForest as a valid model. We recommend enabling all
+        #     # possible models to get a better performance.
+        #     include={
+        #              'classifier': ["random_forest"],
+        #              'feature_preprocessor': ["no_preprocessing"],
+        #              'data_preprocessor': ['NoPreprocessing'],
 
-                     },
-            delete_tmp_folder_after_terminate=True,
-            )
+        #              },
+        #     delete_tmp_folder_after_terminate=True,
+        #     )
 
-        return param_grid, pipeline, scorer, cls
+        return param_grid, pipeline, scorer
 
     def get_baseline_performance(self) -> float:
         """
@@ -413,7 +413,7 @@ class BinaryClassificationTask(Task):
         super().get_baseline_performance()
 #        print("get_baseline_performance")#PD
         print(self.test_data)
-       
+        
         predictions = self._baseline_model.predict(self.test_data)
         return self.score_on_test_data(predictions)
 
@@ -526,7 +526,7 @@ class MultiClassClassificationTask(Task):
         pipeline = Pipeline(
             [
                 ('features', feature_transformation),
-               #('learner', SGDClassifier(max_iter=1000, n_jobs=-1, random_state=rng))#PD
+                ('learner', SGDClassifier(max_iter=1000, n_jobs=-1, random_state=rng))#PD
                 #('learner', MLPClassifier(max_iter=3000))
             ]
         )
@@ -538,21 +538,21 @@ class MultiClassClassificationTask(Task):
 
         
 
-        automl = autosklearn.classification.AutoSklearnClassifier(
-            time_left_for_this_task=1*60,
-            memory_limit=8096,
-            per_run_time_limit=30,
-            n_jobs=-1,
-            include={
-                #"data_preprocessor": ["NoPreprocessing"],
-                "classifier": ["random_forest"],
-                "feature_preprocessor": ["no_preprocessing"],
-                    }
-        )
+        # automl = autosklearn.classification.AutoSklearnClassifier(
+        #     time_left_for_this_task=1*60,
+        #     memory_limit=8096,
+        #     per_run_time_limit=30,
+        #     n_jobs=-1,
+        #     include={
+        #         #"data_preprocessor": ["NoPreprocessing"],
+        #         "classifier": ["random_forest"],
+        #         "feature_preprocessor": ["no_preprocessing"],
+        #             }
+        # )
 
 
 
-        return param_grid, pipeline, scorer, automl
+        return param_grid, pipeline, scorer
 
     def get_baseline_performance(self) -> float:
         """
@@ -566,7 +566,7 @@ class MultiClassClassificationTask(Task):
         """
 
         super().get_baseline_performance()
-
+        self.test_data.to_csv("TESTDITTRICH_test.csv")
         predictions = self._baseline_model.predict(self.test_data)
         return self.score_on_test_data(predictions)
 
@@ -732,29 +732,75 @@ class DataCorruption:
         return f"{self.__class__.__name__}: {self.__dict__}"
 
 
-class TabularCorruption():
-    def __init__(self, column, fraction, sampling='CAR'): 
+# class TabularCorruption():
+#     def __init__(self, column, fraction, sampling='CAR'): 
+#         '''
+#         Corruptions for structured data
+#         Input:
+#         fraction:   fraction of data points to corrupt, float between 0 and 1
+#         sampling:   sampling mechanism for corruptions, options are completely at random ('CAR'),
+#                      at random ('AR'), not at random ('NAR')
+#         column:     target column, string (used for NAR and AR)
+#         '''
+#         self.fraction = fraction
+#         self.sampling = sampling
+#         self.column = column
+
+#     def sample_rows(self, data):
+#         # Completely At Random
+#         #print('Originaler Datensatz:')
+#         #print(data)
+#         if self.sampling.endswith('CAR'):
+#             rows = np.random.permutation(data.index)[:int(len(data) * self.fraction)]
+#             columns = np.random.choice(data.columns, size=int(len(data) * self.fraction), replace=True)
+
+#         # Not At Random or At Random
+#         elif self.sampling.endswith('NAR') or self.sampling.endswith('AR'):
+#             n_values_to_discard = int(len(data) * min(self.fraction, 1.0))
+#             perc_lower_start = np.random.randint(0, len(data) - n_values_to_discard)
+#             perc_idx = range(perc_lower_start, perc_lower_start + n_values_to_discard)
+
+#             # Not At Random
+#             if self.sampling.endswith('NAR'):
+#                 rows = data[self.column].sort_values().iloc[perc_idx].index
+#                 columns = np.random.choice(data.columns, size=int(len(data.columns) * self.fraction), replace=True)
+
+#             # At Random
+#             elif self.sampling.endswith('AR'):
+#                 depends_on_col = np.random.choice(data.columns)
+#                 rows = data[depends_on_col].sort_values().iloc[perc_idx].index
+#                 columns = np.random.choice(data.columns, size=int(len(data.columns) * self.fraction), replace=True)
+
+#         else:
+#             ValueError(f"sampling type '{self.sampling}' not recognized")
+
+#         return rows, columns
+
+
+class TabularCorruption(DataCorruption):
+    def __init__(self, column, fraction, sampling='CAR'):
         '''
         Corruptions for structured data
         Input:
-        fraction:   fraction of data points to corrupt, float between 0 and 1
+        column:    column to perturb, string
+        fraction:   fraction of rows to corrupt, float between 0 and 1
         sampling:   sampling mechanism for corruptions, options are completely at random ('CAR'),
                      at random ('AR'), not at random ('NAR')
-        column:     target column, string (used for NAR and AR)
         '''
+        self.column = column
         self.fraction = fraction
         self.sampling = sampling
-        self.column = column
+
+    def get_dtype(self, df):
+        numeric_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
+        non_numeric_cols = [c for c in df.columns if c not in numeric_cols]
+        return numeric_cols, non_numeric_cols
 
     def sample_rows(self, data):
-        # Completely At Random
-        #print('Originaler Datensatz:')
-        #print(data)
-        if self.sampling.endswith('CAR'):
-            rows = np.random.permutation(data.index)[:int(len(data) * self.fraction)]
-            columns = np.random.choice(data.columns, size=int(len(data) * self.fraction), replace=True)
 
-        # Not At Random or At Random
+        # Completely At Random
+        if self.sampling.endswith('CAR'):
+            rows = np.random.permutation(data.index)[:int(len(data)*self.fraction)]
         elif self.sampling.endswith('NAR') or self.sampling.endswith('AR'):
             n_values_to_discard = int(len(data) * min(self.fraction, 1.0))
             perc_lower_start = np.random.randint(0, len(data) - n_values_to_discard)
@@ -762,16 +808,16 @@ class TabularCorruption():
 
             # Not At Random
             if self.sampling.endswith('NAR'):
+                # pick a random percentile of values in this column
                 rows = data[self.column].sort_values().iloc[perc_idx].index
-                columns = np.random.choice(data.columns, size=int(len(data.columns) * self.fraction), replace=True)
 
             # At Random
             elif self.sampling.endswith('AR'):
-                depends_on_col = np.random.choice(data.columns)
+                depends_on_col = np.random.choice(list(set(data.columns) - {self.column}))
+                # pick a random percentile of values in other column
                 rows = data[depends_on_col].sort_values().iloc[perc_idx].index
-                columns = np.random.choice(data.columns, size=int(len(data.columns) * self.fraction), replace=True)
 
         else:
             ValueError(f"sampling type '{self.sampling}' not recognized")
 
-        return rows, columns
+        return rows
