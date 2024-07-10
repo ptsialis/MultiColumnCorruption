@@ -75,7 +75,7 @@ class EvaluationResult(object):
         # #predictions_on_imputed = base_model.predict(test_data_imputed)
         # score_on_imputed = self._task.score_on_test_data(predictions_on_imputed)
 
-        train_data_imputed.to_csv("train_data_imputed.csv")
+        #train_data_imputed.to_csv("train_data_imputed.csv")
         imputed_model = self._task.fit_baseline_model(train_data_imputed.copy(), self._task.train_labels)
         
         predictions_on_imputed = imputed_model.predict(test_data_imputed)
