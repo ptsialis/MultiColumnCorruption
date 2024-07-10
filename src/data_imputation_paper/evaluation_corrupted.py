@@ -68,10 +68,21 @@ class EvaluationResult(object):
             test_imputed=test_data_imputed.loc[test_imputed_mask, target_column],
             imputation_type=self._imputation_task_type
         )
+       
+        # #test_data_imputed.to_csv("test_data_imputed_beforelast.csv")
+        # # Here jaeger takes the baseline model and predicts on the imputed dataset
+        # predictions_on_imputed = self._task._baseline_model.predict(test_data_imputed)
+        # #predictions_on_imputed = base_model.predict(test_data_imputed)
+        # score_on_imputed = self._task.score_on_test_data(predictions_on_imputed)
 
-        predictions_on_imputed = self._task._baseline_model.predict(test_data_imputed)
-        #predictions_on_imputed = base_model.predict(test_data_imputed)
+        train_data_imputed.to_csv("train_data_imputed.csv")
+        imputed_model = self._task.fit_baseline_model(train_data_imputed.copy(), self._task.train_labels)
+        
+        predictions_on_imputed = imputed_model.predict(test_data_imputed)
+       
         score_on_imputed = self._task.score_on_test_data(predictions_on_imputed)
+
+
 
         self.downstream_performances.append(
             pd.DataFrame(
@@ -289,7 +300,7 @@ class Evaluator(object):
 #                    subset_exp=subset_exp
                     #seed = seed#PD
                 )
-                test_data_corrupted.to_csv("corrupted_test_data_corrupted_after_discard_values.csv")#PD
+                #test_data_corrupted.to_csv("corrupted_test_data_corrupted_after_discard_values.csv")#PD
                 # Fix that sometimes there are no missing values in the target column -> raises exception later on
                 if not train_data_corrupted[target_column].isna().any():
                     print("we are going through train_data_corrupted check")#PD
@@ -298,7 +309,7 @@ class Evaluator(object):
                 if not test_data_corrupted[target_column].isna().any():
                     print("we are going through test_data_corrupted check")#PD
                     test_data_corrupted.loc[random.choice(test_data_corrupted.index), target_column] = nan
-                test_data_corrupted.to_csv("corrupted_test_data_corrupted_between.csv")#PD
+                #test_data_corrupted.to_csv("corrupted_test_data_corrupted_between.csv")#PD
                 
                 train_data_corrupted.to_csv("train_data_corrupted.csv")
 
@@ -320,8 +331,8 @@ class Evaluator(object):
 
                 train_imputed, train_imputed_mask = imputer.transform(train_data_corrupted)
                 test_imputed, test_imputed_mask = imputer.transform(test_data_corrupted)
-                train_imputed.to_csv("train_data_imputed.csv")
-                test_imputed.to_csv("test_data_imputed.csv")
+                #train_imputed.to_csv("train_data_imputed.csv")
+                #test_imputed.to_csv("test_data_imputed.csv")
                 
                 
 #                 if result_temp._baseline_performance is None:
@@ -330,6 +341,7 @@ class Evaluator(object):
 #                     #print(self._task.train_labels, "train_labels ______________")
 #                     print(self._task)
 #                     print("\n")
+#                     train_imputed.to_csv("train_imputed_before_fir.csv")
 #                     base_model = self._task.fit_baseline_model(train_imputed.copy(), self._task.train_labels)#PD
 #                     #base_model = Task.fit_baseline_model(train_imputed.copy(), self._task.train_labels)
 #                     self._task._baseline_model = base_model

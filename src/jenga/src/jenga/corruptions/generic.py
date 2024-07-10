@@ -23,24 +23,31 @@ class MissingValues(TabularCorruption):
 
     def transform(self, data):
     #def transform(self, data, seed):    #PD
+        # corrupted_data = data.copy(deep=True)
+        # #print(corrupted_data)
+        # # calls method from basis.py which uses numpy for random drop of data
+        # # try to give the methods here the fixed random seat per repetition
+        
+        # #print(seed, "Seed in MissingValues_transform")
+        # #rows = self.sample_rows(corrupted_data, seed)#PD
+        # rows, columns = self.sample_rows(corrupted_data)
+        # #print (rows)
+        # #print(columns)
+        
+        # #print(seed, "random seed for data corruptions in jenga/generic")
+        # for row, col in zip(rows, columns):
+        #     corrupted_data.at[row, col] = self.na_value
+        # #print('Manipulierter Datensatz')    
+        # #print(corrupted_data)
+        # nan_count = corrupted_data.isna().sum().sum()
+        # #print(f"\nAnzahl der NaN-Werte im manipulierten Datensatz: {nan_count}")
         corrupted_data = data.copy(deep=True)
-        #print(corrupted_data)
-        # calls method from basis.py which uses numpy for random drop of data
-        # try to give the methods here the fixed random seat per repetition
-        
-        #print(seed, "Seed in MissingValues_transform")
-        #rows = self.sample_rows(corrupted_data, seed)#PD
-        rows, columns = self.sample_rows(corrupted_data)
-        #print (rows)
-        #print(columns)
-        
-        #print(seed, "random seed for data corruptions in jenga/generic")
-        for row, col in zip(rows, columns):
-            corrupted_data.at[row, col] = self.na_value
-        #print('Manipulierter Datensatz')    
-        #print(corrupted_data)
-        nan_count = corrupted_data.isna().sum().sum()
-        #print(f"\nAnzahl der NaN-Werte im manipulierten Datensatz: {nan_count}")
+        rows = self.sample_rows(corrupted_data)
+        corrupted_data.loc[rows, [self.column]] = self.na_value
+
+
+
+
         return corrupted_data
 
 

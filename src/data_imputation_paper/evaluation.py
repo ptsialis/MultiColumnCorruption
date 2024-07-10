@@ -228,6 +228,7 @@ class Evaluator(object):
         discard_in_columns: Optional[List[str]] = None,
         path: Optional[Path] = None,
         seed: Optional[int] = 42
+        
     ):
 
         self._task = task
