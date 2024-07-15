@@ -7,6 +7,10 @@ from pathlib import Path
 from statistics import mean, stdev
 from typing import Callable, Dict, List, Optional, Tuple
 
+from warnings import simplefilter
+# ignore all future warnings
+
+
 import pandas as pd
 from jenga.corruptions.generic import MissingValues
 from jenga.tasks.openml import OpenMLTask
@@ -133,6 +137,15 @@ class EvaluationResult(object):
 
         self.result, self.downstream_performance = results_mean_list
         self.result_std, self.downstream_performance_std = results_std_list
+
+        print('RESULTS---END------------------------------')
+        print(self.result)
+        print(type(self.result))
+        print("__________________-")
+        print(self.downstream_performance)
+        print(type(self.downstream_performance))
+        print('-------------------------------------------')
+
 
         self.elapsed_train_time = mean(self.elapsed_train_times)
         self.elapsed_train_time_std = stdev(self.elapsed_train_times)
@@ -268,25 +281,7 @@ class Evaluator(object):
             print(value.downstream_performance)
             print("\n")
 
-    # def evaluate(self, num_repetitions: int):
-
-    #     result = {}
-
-    #     for target_column in self._target_columns:
-
-    #         result_temp = EvaluationResult(self._task, target_column)
-        
-    #         # NOTE: masks are DataFrames => append expects Series
-    #         result_temp.append(
-    #             #target_column=target_column,
-    #         )
-
-    #         result[target_column] = result_temp.finalize()
-
-    #     self._result = result
-    #     self._save_results()
-
-    #     return self
+ 
     def evaluate(self, num_repetitions: int):
 
         result = {}
@@ -294,7 +289,7 @@ class Evaluator(object):
         for target_column in self._target_columns:
 
             result_temp = EvaluationResult(self._task, target_column)
-
+            simplefilter(action='ignore', category=FutureWarning)
             imputer = self._imputer_class(**self._imputer_arguments)
             start_time = time.time()
             imputer.fit(self._task.train_data.copy(), [target_column])

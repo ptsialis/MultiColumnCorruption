@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["184", "knn", "corrupted_test_new_features1", "--missing-fractions=0.5","--missing-types=MNAR","--strategies=single_single", "--num-repetitions=3", "--base-path=../results"]
+            "args": ["184", "knn", "baseline_Autogluon", "--missing-fractions=0.5","--missing-types=MNAR","--strategies=single_single", "--num-repetitions=3", "--base-path=../results"]
         }
     ]
 }

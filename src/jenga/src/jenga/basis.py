@@ -7,10 +7,9 @@ from typing import Any, Dict, List, Optional, Tuple
 from typing import Optional
 from pprint import pprint
 
-#import autosklearn.classification
-#import autosklearn.pipeline.components.data_preprocessing
+
 import sklearn.metrics
-from ConfigSpace.configuration_space import ConfigurationSpace
+#from ConfigSpace.configuration_space import ConfigurationSpace
 
 
 import numpy as np
@@ -18,9 +17,12 @@ import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
+
 from sklearn.linear_model import SGDClassifier, SGDRegressor
 from sklearn.neural_network import MLPClassifier,MLPRegressor
-#import autosklearn.classification
+from autogluon.tabular import TabularPredictor
+
+
 from sklearn.metrics import (
     f1_score,
     make_scorer,
@@ -114,9 +116,49 @@ class Task(ABC):
                     task_type = MULTI_CLASS_CLASSIFICATION
 
         return task_type
+    
+    def preprocess_and_transform(self,train_data, train_labels, categorical_columns, numerical_columns):
+        # Define the categorical preprocessing pipeline
+        categorical_preprocessing = Pipeline(
+            [
+                ('mark_missing', SimpleImputer(strategy='most_frequent')),
+                ('one_hot_encode', OneHotEncoder(handle_unknown='ignore'))
+            ]
+        )
+
+        # Define the numerical preprocessing pipeline
+        numerical_preprocessing = Pipeline(
+            [
+                ('mark_missing', SimpleImputer(strategy='mean')),
+                ('scaling', StandardScaler())
+            ]
+        )
+
+        # Define the column transformer
+        feature_transformation = ColumnTransformer(transformers=[
+                ('categorical_features', categorical_preprocessing, categorical_columns),
+                ('scaled_numeric', numerical_preprocessing, numerical_columns)
+            ]
+        )
+        
+        # Sort and reset indices for train_labels and train_data
+        labels = train_labels.sort_index()
+        labels.reset_index(drop=True, inplace=True)
+
+        train_data_sorted = train_data.copy().sort_index()
+        train_data_sorted.reset_index(drop=True, inplace=True)
+
+        # Transform the data
+        transformed_data = pd.DataFrame(feature_transformation.fit_transform(train_data_sorted).toarray())
+
+        # Add the labels to the transformed data
+        transformed_data["train_label"] = labels
+
+        return transformed_data
+
 
     def fit_baseline_model(self, train_data: Optional[pd.DataFrame] = None, train_labels: Optional[pd.Series] = None) -> BaseEstimator:
-    #def fit_baseline_model(train_data, train_labels) -> BaseEstimator:
+   
         """
         Fit a baseline model. If no data is given (default), it uses the task's train data and creates the attribute `_baseline_model`. \
             If data is given, it trains this data.
@@ -168,61 +210,30 @@ class Task(ABC):
         feature_transformation = ColumnTransformer(transformers=[
                 ('categorical_features', categorical_preprocessing, self.categorical_columns),
                 ('scaled_numeric', numerical_preprocessing, self.numerical_columns)
-            ]
+            ],
+            remainder = "passthrough"
         ) 
-        '''       
-        feature_transformation = ColumnTransformer(transformers=[
-                ('categorical_features', self.categorical_columns),
-                ('scaled_numeric', self.numerical_columns)
-            ]
-        )
+       
+        #param_grid, pipeline, scorer = self._get_pipeline_grid_scorer_tuple(feature_transformation)
         
-        param_grid = {
-            'learner__loss': ['log'],
-            'learner__penalty': ['l2'],
-            'learner__alpha': [0.00001, 0.0001, 0.001, 0.01]
-        }
-        rng = np.random.RandomState(5) #PD 
-        print(rng, "random seed for SGD Classifier") #PD
-        pipeline = Pipeline(
-            [
-                #('features', feature_transformation),
-                ('learner', SGDClassifier(max_iter=1000, n_jobs=-1, random_state=rng))#PD
-            ]
-        )
+        transformed_data = self.preprocess_and_transform(train_data.copy(),train_labels.copy(),self.categorical_columns,self.numerical_columns)
 
-        scorer = {
-            "F1": make_scorer(f1_score, average="macro")
-        }
-        '''
+        excluded_model_types = ['KNN', 'NN_TORCH']
 
-        param_grid, pipeline, scorer = self._get_pipeline_grid_scorer_tuple(feature_transformation)
-        refit = list(scorer.keys())[0]
-        #train_data.to_csv("TESTDITT.csv")
-        search = GridSearchCV(pipeline, param_grid, scoring=scorer, n_jobs=-1, refit=refit)
-    
-        model = search.fit(train_data, train_labels).best_estimator_
+        model = TabularPredictor(label="train_label").fit(transformed_data,time_limit=30,excluded_model_types=excluded_model_types,feature_generator=None)
+         
+        #refit = list(scorer.keys())[0]
+        #search = GridSearchCV(pipeline, param_grid, scoring=scorer, n_jobs=-1, refit=refit)
 
+        #model = search.fit(train_data, train_labels).best_estimator_
         
-
-        
-        #transformed_data = feature_transformation.fit_transform(train_data)
-        #print(train_data)
-        #print(transformed_data)
-        
-        #a=pd.DataFrame(transformed_data)
-        #a.to_csv("trasnformed_data_form_basis.csv")
-        #model = automl.fit(train_data,train_labels)
-        
-
-
         # only set baseline model attribute if it is trained on the original task data
         if use_original_data:
             print("only set baseline model attribute if it is trained on the original task data")
             self._baseline_model = model
 
         
-        return model 
+        return model, feature_transformation
 
     @abstractmethod
     def _check_data(self):
@@ -359,7 +370,7 @@ class BinaryClassificationTask(Task):
         
         #parameter_grid for SGDClassifier
         param_grid = {
-            'learner__loss': ['log'],
+            'learner__loss': ['log_loss'],
             'learner__penalty': ['l2'],
             'learner__alpha': [0.00001, 0.0001, 0.001, 0.01]
         }
@@ -384,21 +395,6 @@ class BinaryClassificationTask(Task):
             "F1": make_scorer(f1_score, average="macro")
         }
 
-        # cls = autosklearn.classification.AutoSklearnClassifier(
-        #     time_left_for_this_task=120,
-        #     per_run_time_limit=60,
-        #     memory_limit=4096,
-        #     # We will limit the configuration space only to
-        #     # have RandomForest as a valid model. We recommend enabling all
-        #     # possible models to get a better performance.
-        #     include={
-        #              'classifier': ["random_forest"],
-        #              'feature_preprocessor': ["no_preprocessing"],
-        #              'data_preprocessor': ['NoPreprocessing'],
-
-        #              },
-        #     delete_tmp_folder_after_terminate=True,
-        #     )
 
         return param_grid, pipeline, scorer
 
@@ -510,7 +506,7 @@ class MultiClassClassificationTask(Task):
         """
         # parameter grid for SGDClassifier
         param_grid = {
-            'learner__loss': ['log'],
+            'learner__loss': ['log_loss'],
             'learner__penalty': ['l2'],
             'learner__alpha': [0.00001, 0.0001, 0.001, 0.01]
         }
@@ -535,20 +531,6 @@ class MultiClassClassificationTask(Task):
             "F1": make_scorer(f1_score, average="macro")
         }
         
-
-        
-
-        # automl = autosklearn.classification.AutoSklearnClassifier(
-        #     time_left_for_this_task=1*60,
-        #     memory_limit=8096,
-        #     per_run_time_limit=30,
-        #     n_jobs=-1,
-        #     include={
-        #         #"data_preprocessor": ["NoPreprocessing"],
-        #         "classifier": ["random_forest"],
-        #         "feature_preprocessor": ["no_preprocessing"],
-        #             }
-        # )
 
 
 

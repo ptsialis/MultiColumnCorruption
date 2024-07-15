@@ -41,7 +41,7 @@ class MissingValues(TabularCorruption):
         # #print(corrupted_data)
         # nan_count = corrupted_data.isna().sum().sum()
         # #print(f"\nAnzahl der NaN-Werte im manipulierten Datensatz: {nan_count}")
-        print(self.sampling)
+        #print(self.sampling)
         corrupted_data = data.copy(deep=True)
         rows = self.sample_rows(corrupted_data)
         corrupted_data.loc[rows, [self.column]] = self.na_value
