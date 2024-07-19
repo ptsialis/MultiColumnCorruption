@@ -149,13 +149,7 @@ class Task(ABC):
         train_data_sorted.reset_index(drop=True, inplace=True)
 
         # Transform the data
-        #Also, check if there are any categorical columns. If not, then you don't need to use toarray().
-        # if categorical_columns and numerical_columns:
-        #     transformed_data = pd.DataFrame(feature_transformation.fit_transform(train_data_sorted).toarray())
-        # elif not categorical_columns and numerical_columns:
-        #     transformed_data = pd.DataFrame(feature_transformation.fit_transform(train_data_sorted))
-        # elif categorical_columns and not numerical_columns:
-        #     transformed_data = pd.DataFrame(feature_transformation.fit_transform(train_data_sorted).toarray())
+        
         if not categorical_columns and not numerical_columns:
             raise ValueError("categorical_columns list and numerical_columns list are empty. Feature Prep. Pipeline needs imput!")
         else:
@@ -183,21 +177,6 @@ class Task(ABC):
             tets_data_sorted.reset_index(drop=True, inplace=True)
 
             # Transform the data
-            #transformed_data = pd.DataFrame(feature_trasnformer.transform(tets_data_sorted).toarray())
-            # if not self.categorical_columns and not self.numerical_columns:
-            #     raise ValueError("categorical_columns list and numerical_columns list are empty. Feature Prep. Pipeline needs imput!")
-            # else:       
-            #     transformed_data = pd.DataFrame(feature_trasnformer.transform(tets_data_sorted))
-
-            # if self.categorical_columns and self.numerical_columns:
-            #     transformed_data = pd.DataFrame(feature_transformer.transform(tets_data_sorted).toarray())
-            # elif not self.categorical_columns and self.numerical_columns:
-            #     transformed_data = pd.DataFrame(feature_transformer.transform(tets_data_sorted))
-            # elif self.categorical_columns and not self.numerical_columns:
-            #     transformed_data = pd.DataFrame(feature_transformer.transform(tets_data_sorted).toarray())
-            # elif not self.categorical_columns and not self.numerical_columns:
-            #     raise ValueError("categorical_columns list and numerical_columns list are empty. Feature Prep. Pipeline needs imput!")
-            
             if not self.categorical_columns and not self.numerical_columns:
                  raise ValueError("categorical_columns list and numerical_columns list are empty. Feature Prep. Pipeline needs imput!")
             else:
