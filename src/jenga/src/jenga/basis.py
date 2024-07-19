@@ -117,12 +117,12 @@ class Task(ABC):
 
         return task_type
     
-    def preprocess_and_transform(self,train_data, train_labels, categorical_columns, numerical_columns):
+    def preprocess_and_transform_train(self,train_data, train_labels, categorical_columns, numerical_columns):
         # Define the categorical preprocessing pipeline
         categorical_preprocessing = Pipeline(
             [
                 ('mark_missing', SimpleImputer(strategy='most_frequent')),
-                ('one_hot_encode', OneHotEncoder(handle_unknown='ignore'))
+                ('one_hot_encode', OneHotEncoder(handle_unknown='ignore',sparse= False))
             ]
         )
 
@@ -149,12 +149,67 @@ class Task(ABC):
         train_data_sorted.reset_index(drop=True, inplace=True)
 
         # Transform the data
-        transformed_data = pd.DataFrame(feature_transformation.fit_transform(train_data_sorted).toarray())
-
+        #Also, check if there are any categorical columns. If not, then you don't need to use toarray().
+        # if categorical_columns and numerical_columns:
+        #     transformed_data = pd.DataFrame(feature_transformation.fit_transform(train_data_sorted).toarray())
+        # elif not categorical_columns and numerical_columns:
+        #     transformed_data = pd.DataFrame(feature_transformation.fit_transform(train_data_sorted))
+        # elif categorical_columns and not numerical_columns:
+        #     transformed_data = pd.DataFrame(feature_transformation.fit_transform(train_data_sorted).toarray())
+        if not categorical_columns and not numerical_columns:
+            raise ValueError("categorical_columns list and numerical_columns list are empty. Feature Prep. Pipeline needs imput!")
+        else:
+            transformed_data = pd.DataFrame(feature_transformation.fit_transform(train_data_sorted))
+        
+        
+        
         # Add the labels to the transformed data
-        transformed_data["train_label"] = labels
 
-        return transformed_data
+        transformed_data["train_label"] = labels
+        transformed_data.to_csv("debug.csv")
+        return transformed_data, feature_transformation, labels
+    
+
+
+    def preprocess_and_transform_test(self,tets_data, test_labels, feature_transformer):
+            # Define the categorical preprocessing pipeline
+            
+            
+            # Sort and reset indices for test_labels and tets_data
+            labels = test_labels.sort_index()
+            labels.reset_index(drop=True, inplace=True)
+
+            tets_data_sorted = tets_data.copy().sort_index()
+            tets_data_sorted.reset_index(drop=True, inplace=True)
+
+            # Transform the data
+            #transformed_data = pd.DataFrame(feature_trasnformer.transform(tets_data_sorted).toarray())
+            # if not self.categorical_columns and not self.numerical_columns:
+            #     raise ValueError("categorical_columns list and numerical_columns list are empty. Feature Prep. Pipeline needs imput!")
+            # else:       
+            #     transformed_data = pd.DataFrame(feature_trasnformer.transform(tets_data_sorted))
+
+            # if self.categorical_columns and self.numerical_columns:
+            #     transformed_data = pd.DataFrame(feature_transformer.transform(tets_data_sorted).toarray())
+            # elif not self.categorical_columns and self.numerical_columns:
+            #     transformed_data = pd.DataFrame(feature_transformer.transform(tets_data_sorted))
+            # elif self.categorical_columns and not self.numerical_columns:
+            #     transformed_data = pd.DataFrame(feature_transformer.transform(tets_data_sorted).toarray())
+            # elif not self.categorical_columns and not self.numerical_columns:
+            #     raise ValueError("categorical_columns list and numerical_columns list are empty. Feature Prep. Pipeline needs imput!")
+            
+            if not self.categorical_columns and not self.numerical_columns:
+                 raise ValueError("categorical_columns list and numerical_columns list are empty. Feature Prep. Pipeline needs imput!")
+            else:
+                transformed_data = pd.DataFrame(feature_transformer.transform(tets_data_sorted))
+            
+            
+            
+            # Add the labels to the transformed data
+
+
+            return transformed_data, labels
+
 
 
     def fit_baseline_model(self, train_data: Optional[pd.DataFrame] = None, train_labels: Optional[pd.Series] = None) -> BaseEstimator:
@@ -192,36 +247,44 @@ class Task(ABC):
             train_data[col] = train_data[col].astype(str)
         #print("We are in basis.py")#PD
         
-        categorical_preprocessing = Pipeline(
-            [
-                ('mark_missing', SimpleImputer(strategy='most_frequent')),# If there is more than one such value, only the smallest is returned.
-                #('mark_missing', SimpleImputer(strategy='constant', fill_value='__NA__')),
-                ('one_hot_encode', OneHotEncoder(handle_unknown='ignore'))
-            ]
-        )
+        # categorical_preprocessing = Pipeline(
+        #     [
+        #         ('mark_missing', SimpleImputer(strategy='most_frequent')),# If there is more than one such value, only the smallest is returned.
+        #         #('mark_missing', SimpleImputer(strategy='constant', fill_value='__NA__')),
+        #         ('one_hot_encode', OneHotEncoder(handle_unknown='ignore'))
+        #     ]
+        # )
 
-        numerical_preprocessing = Pipeline(
-            [
-                ('mark_missing', SimpleImputer(strategy='mean')),
-                #('mark_missing', SimpleImputer(strategy='constant', fill_value=0)),
-                ('scaling',  StandardScaler())
-            ]
-        )
-        feature_transformation = ColumnTransformer(transformers=[
-                ('categorical_features', categorical_preprocessing, self.categorical_columns),
-                ('scaled_numeric', numerical_preprocessing, self.numerical_columns)
-            ],
-            remainder = "passthrough"
-        ) 
+        # numerical_preprocessing = Pipeline(
+        #     [
+        #         ('mark_missing', SimpleImputer(strategy='mean')),
+        #         #('mark_missing', SimpleImputer(strategy='constant', fill_value=0)),
+        #         ('scaling',  StandardScaler())
+        #     ]
+        # )
+        # feature_transformation = ColumnTransformer(transformers=[
+        #         ('categorical_features', categorical_preprocessing, self.categorical_columns),
+        #         ('scaled_numeric', numerical_preprocessing, self.numerical_columns)
+        #     ],
+        #     remainder = "passthrough"
+        # ) 
        
         #param_grid, pipeline, scorer = self._get_pipeline_grid_scorer_tuple(feature_transformation)
         
-        transformed_data = self.preprocess_and_transform(train_data.copy(),train_labels.copy(),self.categorical_columns,self.numerical_columns)
+        transformed_data, feature_transformation, labels = self.preprocess_and_transform_train(train_data.copy(),train_labels.copy(),self.categorical_columns,self.numerical_columns)
 
-        excluded_model_types = ['KNN', 'NN_TORCH']
+           
+            
+        excluded_model_types = ['KNN', 'NN_TORCH','CAT','FASTAI','XT','GBM']
+        infer_limit = 0.00005
+        infer_limit_batch_size = 10000
 
-        model = TabularPredictor(label="train_label").fit(transformed_data,time_limit=30,excluded_model_types=excluded_model_types,feature_generator=None)
-         
+        model = TabularPredictor(label="train_label").fit(transformed_data,time_limit=30,excluded_model_types=excluded_model_types,hyperparameters={'RF':{}},feature_generator=None)
+        print("---------------------------")
+        print(model.leaderboard())
+
+
+        model.delete_models(models_to_keep='best', dry_run=False)
         #refit = list(scorer.keys())[0]
         #search = GridSearchCV(pipeline, param_grid, scoring=scorer, n_jobs=-1, refit=refit)
 
@@ -548,8 +611,9 @@ class MultiClassClassificationTask(Task):
         """
 
         super().get_baseline_performance()
-        self.test_data.to_csv("TESTDITTRICH_test.csv")
+        
         predictions = self._baseline_model.predict(self.test_data)
+
         return self.score_on_test_data(predictions)
 
     def score_on_test_data(self, predictions: pd.array) -> float:

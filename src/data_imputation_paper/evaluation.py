@@ -46,7 +46,7 @@ class EvaluationResult(object):
         elif self._task._task_type == REGRESSION:
             self._baseline_metric = ("MAE", "MSE", "RMSE")
 
-        self._baseline_performance = self._task.get_baseline_performance()
+        #self._baseline_performance = self._task.get_baseline_performance()
         self._set_imputation_task_type()
 
     def append(
@@ -59,7 +59,8 @@ class EvaluationResult(object):
         train_imputed_mask: pd.Series,
         test_imputed_mask: pd.Series,
         elapsed_time: float,
-        best_hyperparameters: Dict[str, List[dict]]
+        best_hyperparameters: Dict[str, List[dict]],
+        feature_transformer
     ):
 
         if self._finalized:
@@ -73,8 +74,19 @@ class EvaluationResult(object):
             imputation_type=self._imputation_task_type
         )
 
-        predictions_on_corrupted = self._task._baseline_model.predict(test_data_corrupted)
-        score_on_corrupted = self._task.score_on_test_data(predictions_on_corrupted)
+
+
+        test_data_corrupted, test_labels_sorted_corr = self._task.preprocess_and_transform_test(test_data_corrupted,self._task.test_labels.copy(), feature_transformer)
+        predictions_corrupted  = self._task._baseline_model.predict(test_data_corrupted)
+        score_on_corrupted = f1_score(test_labels_sorted_corr, predictions_corrupted, average="micro"), f1_score(test_labels_sorted_corr, predictions_corrupted, average="macro"), f1_score(test_labels_sorted_corr, predictions_corrupted, average="weighted")
+
+        #predictions_on_corrupted = self._task._baseline_model.predict(test_data_corrupted)
+        #score_on_corrupted = self._task.score_on_test_data(predictions_on_corrupted)
+
+        test_data_imputed, test_labels_sorted_imp = self._task.preprocess_and_transform_test(test_data_imputed,self._task.test_labels.copy(), feature_transformer)
+        predictions_imp  = self._task._baseline_model.predict(test_data_imputed)
+        score_on_corrupted = f1_score(test_labels_sorted_imp, predictions_imp, average="micro"), f1_score(test_labels_sorted_imp, predictions_imp, average="macro"), f1_score(test_labels_sorted_imp, predictions_imp, average="weighted")
+
 
         predictions_on_imputed = self._task._baseline_model.predict(test_data_imputed)
         score_on_imputed = self._task.score_on_test_data(predictions_on_imputed)
@@ -259,8 +271,10 @@ class Evaluator(object):
             if target_column not in self._discard_in_columns:
                 raise EvaluationError("All target_columns must be in discard_in_columns")
 
+
+       
         # fit task's baseline model and get performance
-        self._task.fit_baseline_model()
+        #self._task.fit_baseline_model()
 
         # Because we set determinism here, supres downstream determinism mechanisms
         if self._seed:
@@ -288,8 +302,20 @@ class Evaluator(object):
 
         for target_column in self._target_columns:
 
+
             result_temp = EvaluationResult(self._task, target_column)
-            simplefilter(action='ignore', category=FutureWarning)
+
+            base_model, feature_transformer = self._task.fit_baseline_model()
+            self._task._baseline_model = base_model
+
+            transformed_test, test_labels_sorted = self._task.preprocess_and_transform_test(self._task.test_data.copy(),self._task.test_labels.copy(), feature_transformer)
+            transformed_test.to_csv("transformed_test.csv")
+            predictions  = self._task._baseline_model.predict(transformed_test)
+            result_temp._baseline_performance = f1_score(test_labels_sorted, predictions, average="micro"), f1_score(test_labels_sorted, predictions, average="macro"), f1_score(test_labels_sorted, predictions, average="weighted")
+
+            
+            
+            
             imputer = self._imputer_class(**self._imputer_arguments)
             start_time = time.time()
             imputer.fit(self._task.train_data.copy(), [target_column])
@@ -323,7 +349,8 @@ class Evaluator(object):
                     train_imputed_mask=train_imputed_mask[target_column],
                     test_imputed_mask=test_imputed_mask[target_column],
                     elapsed_time=elapsed_time,
-                    best_hyperparameters=imputer.get_best_hyperparameters()
+                    best_hyperparameters=imputer.get_best_hyperparameters(),
+                    feature_transformer=feature_transformer
                 )
 
             result[target_column] = result_temp.finalize()

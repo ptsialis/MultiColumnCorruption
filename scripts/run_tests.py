@@ -8,28 +8,29 @@ import json
 
 # Binary Experiments
 
-# binary_task_id_mappings = json.loads(Path("./data/raw/binary.txt").read_text())
-# BINARY_TASK_IDS = [int(x) for x in binary_task_id_mappings.keys()]
+binary_task_id_mappings = json.loads(Path("./data/raw/binary.txt").read_text())
+BINARY_TASK_IDS = [int(x) for x in binary_task_id_mappings.keys()]
 
-# methods = ["knn"] #, "knn", "forest", "dl", "gain", "vae"]
-# print(os.getcwd()) 
+methods = ["knn"] #, "knn", "forest", "dl", "gain", "vae"]
+print(os.getcwd()) 
 
-# for i in BINARY_TASK_IDS:
-#     for j in methods:
-#         os.system(f"python ./scripts/run-experiment.py {i} {j} binary_experiment --missing-fractions 0.5 --missing-types MCAR --strategies single_all --num-repetitions 3 --base-path ../results")
-#         break
+for i in BINARY_TASK_IDS:
+    for j in methods:
+        os.system(f"python ./scripts/run-experiment.py {i} {j} baseline_autogluon --missing-fractions 0.5 --missing-types MCAR --strategies single_single --num-repetitions 3 --base-path ../results")
+        
+
 #Multi Experiments
 
 
-multi_task_id_mappings = json.loads(Path("./data/raw/multi.txt").read_text())
-MULTI_TASK_IDS = [int(x) for x in multi_task_id_mappings.keys()]
+# multi_task_id_mappings = json.loads(Path("./data/raw/multi.txt").read_text())
+# MULTI_TASK_IDS = [int(x) for x in multi_task_id_mappings.keys()]
 
-methods = ["knn"] #, "knn", "forest", "dl" "gain", "vae"]
+# methods = ["knn"] #, "knn", "forest", "dl" "gain", "vae"]
 
 
-for i in MULTI_TASK_IDS:
-    for j in methods:
-        os.system(f"python ./scripts/run-experiment.py {i} {j} baseline_SGD --missing-fractions 0.5 --missing-types MCAR --strategies single_all --num-repetitions 3 --base-path ../results")
+# for i in MULTI_TASK_IDS:
+#     for j in methods:
+#         os.system(f"python ./scripts/run-experiment.py {i} {j} baseline_autogluon --missing-fractions 0.5 --missing-types MCAR --strategies single_single --num-repetitions 3 --base-path ../results")
 
         
 # # Regression Experiments
