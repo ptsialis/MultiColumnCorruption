@@ -309,7 +309,7 @@ class Evaluator(object):
             self._task._baseline_model = base_model
 
             transformed_test, test_labels_sorted = self._task.preprocess_and_transform_test(self._task.test_data.copy(),self._task.test_labels.copy(), feature_transformer)
-            transformed_test.to_csv("transformed_test.csv")
+            
             predictions  = self._task._baseline_model.predict(transformed_test)
             result_temp._baseline_performance = f1_score(test_labels_sorted, predictions, average="micro"), f1_score(test_labels_sorted, predictions, average="macro"), f1_score(test_labels_sorted, predictions, average="weighted")
 
