@@ -45,7 +45,7 @@ class OpenMLTask(Task):
 
         seed=32 #PD
         train_data, test_data, train_labels, test_labels = train_test_split(X, y, train_size=train_size)
-        test_data.to_csv("corrupted_original_test_data_after_pull.csv")#PD
+        #test_data.to_csv("corrupted_original_test_data_after_pull.csv")#PD
         categorical_columns = [
             column for column in X.columns
             if pd.api.types.is_categorical_dtype(X[column])
@@ -54,6 +54,9 @@ class OpenMLTask(Task):
             column for column in X.columns
             if pd.api.types.is_numeric_dtype(X[column]) and column not in categorical_columns
         ]
+
+    
+        #train_labels.to_csv("train_labels.csv")
 
         super().__init__(
             train_data=train_data,

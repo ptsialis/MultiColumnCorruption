@@ -69,19 +69,29 @@ class EvaluationResult(object):
             imputation_type=self._imputation_task_type
         )
        
-        # #test_data_imputed.to_csv("test_data_imputed_beforelast.csv")
+        
         # # Here jaeger takes the baseline model and predicts on the imputed dataset
         # predictions_on_imputed = self._task._baseline_model.predict(test_data_imputed)
         # #predictions_on_imputed = base_model.predict(test_data_imputed)
         # score_on_imputed = self._task.score_on_test_data(predictions_on_imputed)
 
-        train_data_imputed.to_csv("train_data_imputed.csv")
-        imputed_model = self._task.fit_baseline_model(train_data_imputed.copy(), self._task.train_labels)
         
-        predictions_on_imputed = imputed_model.predict(test_data_imputed)
+        # imputed_model = self._task.fit_baseline_model(train_data_imputed.copy(), self._task.train_labels)
+        
+        # predictions_on_imputed = imputed_model.predict(test_data_imputed)
        
-        score_on_imputed = self._task.score_on_test_data(predictions_on_imputed)
+        # score_on_imputed = self._task.score_on_test_data(predictions_on_imputed)
 
+
+        imputed_model, feature_transformer = self._task.fit_baseline_model(train_data_imputed.copy(), self._task.train_labels)
+
+        imputed_test, test_labels_sorted = self._task.preprocess_and_transform_test(test_data_imputed.copy(),self._task.test_labels.copy(), feature_transformer)
+        imputed_predictions  = imputed_model.predict(imputed_test)
+        score_on_imputed = f1_score(test_labels_sorted, imputed_predictions, average="micro"), f1_score(test_labels_sorted, imputed_predictions, average="macro"), f1_score(test_labels_sorted, imputed_predictions, average="weighted")
+
+        
+
+        
 
 
         self.downstream_performances.append(
@@ -300,7 +310,7 @@ class Evaluator(object):
 #                    subset_exp=subset_exp
                     #seed = seed#PD
                 )
-                #test_data_corrupted.to_csv("corrupted_test_data_corrupted_after_discard_values.csv")#PD
+               
                 # Fix that sometimes there are no missing values in the target column -> raises exception later on
                 if not train_data_corrupted[target_column].isna().any():
                     print("we are going through train_data_corrupted check")#PD
@@ -309,17 +319,19 @@ class Evaluator(object):
                 if not test_data_corrupted[target_column].isna().any():
                     print("we are going through test_data_corrupted check")#PD
                     test_data_corrupted.loc[random.choice(test_data_corrupted.index), target_column] = nan
-                #test_data_corrupted.to_csv("corrupted_test_data_corrupted_between.csv")#PD
                 
-                train_data_corrupted.to_csv("train_data_corrupted.csv")
+
 
                 if result_temp._baseline_performance is None:
                     # fit task's baseline model and get performance
-                    base_model = self._task.fit_baseline_model(train_data_corrupted.copy(), self._task.train_labels)
+                    base_model, feature_transformer = self._task.fit_baseline_model(train_data_corrupted.copy(), self._task.train_labels)
                     self._task._baseline_model = base_model
 
-                    predictions = self._task._baseline_model.predict(test_data_corrupted)
-                    result_temp._baseline_performance = self._task.score_on_test_data(predictions)
+                    corrupted_test, test_labels_sorted = self._task.preprocess_and_transform_test(test_data_corrupted.copy(),self._task.test_labels.copy(), feature_transformer)
+                    corrupted_predictions  = self._task._baseline_model.predict(corrupted_test)
+                    result_temp._baseline_performance = f1_score(test_labels_sorted, corrupted_predictions, average="micro"), f1_score(test_labels_sorted, corrupted_predictions, average="macro"), f1_score(test_labels_sorted, corrupted_predictions, average="weighted")
+
+
 
 
 
@@ -331,8 +343,6 @@ class Evaluator(object):
 
                 train_imputed, train_imputed_mask = imputer.transform(train_data_corrupted)
                 test_imputed, test_imputed_mask = imputer.transform(test_data_corrupted)
-                #train_imputed.to_csv("train_data_imputed.csv")
-                #test_imputed.to_csv("test_data_imputed.csv")
                 
                 
 #                 if result_temp._baseline_performance is None:
@@ -368,7 +378,7 @@ class Evaluator(object):
 
         self._result = result
         self._save_results()
-
+        
         return self
 
     def report(self) -> None:
@@ -399,7 +409,7 @@ class Evaluator(object):
         # Apply all
         train_data = task.train_data.copy()
         test_data = task.test_data.copy()
-        #train_data.to_csv("original_dataset.csv")
+        
         for missing_value in missing_values:
             train_data = missing_value.transform(train_data)#PD
             test_data = missing_value.transform(test_data)#PD
