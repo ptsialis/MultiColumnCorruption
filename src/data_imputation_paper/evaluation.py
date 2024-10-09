@@ -312,7 +312,7 @@ class Evaluator(object):
             
             predictions  = self._task._baseline_model.predict(transformed_test)
             result_temp._baseline_performance = f1_score(test_labels_sorted, predictions, average="micro"), f1_score(test_labels_sorted, predictions, average="macro"), f1_score(test_labels_sorted, predictions, average="weighted")
-
+            print(f1_score(test_labels_sorted, predictions, average="macro"))
             
             
             
@@ -349,7 +349,8 @@ class Evaluator(object):
                     train_imputed_mask=train_imputed_mask[target_column],
                     test_imputed_mask=test_imputed_mask[target_column],
                     elapsed_time=elapsed_time,
-                    best_hyperparameters=imputer.get_best_hyperparameters(),
+                    #best_hyperparameters=imputer.get_best_hyperparameters(),
+                    best_hyperparameters="",
                     feature_transformer=feature_transformer
                 )
 

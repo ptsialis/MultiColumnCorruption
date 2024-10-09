@@ -142,26 +142,25 @@ class Task(ABC):
         )
         
         # Sort and reset indices for train_labels and train_data
-        labels = train_labels.sort_index()
-        labels.reset_index(drop=True, inplace=True)
-
-        train_data_sorted = train_data.copy().sort_index()
-        train_data_sorted.reset_index(drop=True, inplace=True)
+        
 
         # Transform the data
         
         if not categorical_columns and not numerical_columns:
             raise ValueError("categorical_columns list and numerical_columns list are empty. Feature Prep. Pipeline needs imput!")
         else:
-            transformed_data = pd.DataFrame(feature_transformation.fit_transform(train_data_sorted))
-        
+            #transformed_data = pd.DataFrame(feature_transformation.fit_transform(train_data_sorted))
+            print(feature_transformation.fit_transform(train_data))
+            transformed_data = pd.DataFrame(feature_transformation.fit_transform(train_data))
+        train_data.to_csv("train_data.csv")
+        train_labels.to_csv("train_labels.csv")
         
         
         # Add the labels to the transformed data
 
-        transformed_data["train_label"] = labels
-        transformed_data.to_csv("debug.csv")
-        return transformed_data, feature_transformation, labels
+        transformed_data = transformed_data.join(train_labels)
+        transformed_data.to_csv("debug.csv",index=True)
+        return transformed_data, feature_transformation, train_labels
     
 
 
@@ -170,24 +169,25 @@ class Task(ABC):
             
             
             # Sort and reset indices for test_labels and tets_data
-            labels = test_labels.sort_index()
-            labels.reset_index(drop=True, inplace=True)
+            #labels = test_labels.sort_index()
+            #labels.reset_index(drop=True, inplace=True)
 
-            tets_data_sorted = tets_data.copy().sort_index()
-            tets_data_sorted.reset_index(drop=True, inplace=True)
+            #tets_data_sorted = tets_data.copy().sort_index()
+            #tets_data_sorted.reset_index(drop=True, inplace=True)
+
 
             # Transform the data
             if not self.categorical_columns and not self.numerical_columns:
                  raise ValueError("categorical_columns list and numerical_columns list are empty. Feature Prep. Pipeline needs imput!")
             else:
-                transformed_data = pd.DataFrame(feature_transformer.transform(tets_data_sorted))
+                transformed_data = pd.DataFrame(feature_transformer.transform(tets_data))
             
             
             
             # Add the labels to the transformed data
 
 
-            return transformed_data, labels
+            return transformed_data, test_labels
 
 
 
@@ -249,21 +249,21 @@ class Task(ABC):
         # ) 
        
         #param_grid, pipeline, scorer = self._get_pipeline_grid_scorer_tuple(feature_transformation)
-        
+        print(train_data)
         transformed_data, feature_transformation, labels = self.preprocess_and_transform_train(train_data.copy(),train_labels.copy(),self.categorical_columns,self.numerical_columns)
-
-           
+        print(transformed_data)
+        print(transformed_data.columns[-1])   
             
-        excluded_model_types = ['KNN', 'NN_TORCH','CAT','FASTAI','XT','GBM']
+        excluded_model_types = ['KNN','CAT','FASTAI','XT','GBM',"RF","NN_TORCH"]
         infer_limit = 0.00005
         infer_limit_batch_size = 10000
 
-        model = TabularPredictor(label="train_label").fit(transformed_data,time_limit=30,excluded_model_types=excluded_model_types,hyperparameters={'RF':{}},feature_generator=None)
+        model = TabularPredictor(label=transformed_data.columns[-1]).fit(transformed_data,time_limit=600,presets="best_quality",excluded_model_types=excluded_model_types,hyperparameters={ 'XGB':{}},feature_generator=None)
         print("---------------------------")
         print(model.leaderboard())
 
 
-        model.delete_models(models_to_keep='best', dry_run=False)
+        #model.delete_models(models_to_keep='best', dry_run=False)
         #refit = list(scorer.keys())[0]
         #search = GridSearchCV(pipeline, param_grid, scoring=scorer, n_jobs=-1, refit=refit)
 

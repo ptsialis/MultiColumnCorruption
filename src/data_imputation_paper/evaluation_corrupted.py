@@ -86,6 +86,8 @@ class EvaluationResult(object):
         imputed_model, feature_transformer = self._task.fit_baseline_model(train_data_imputed.copy(), self._task.train_labels)
 
         imputed_test, test_labels_sorted = self._task.preprocess_and_transform_test(test_data_imputed.copy(),self._task.test_labels.copy(), feature_transformer)
+       
+
         imputed_predictions  = imputed_model.predict(imputed_test)
         score_on_imputed = f1_score(test_labels_sorted, imputed_predictions, average="micro"), f1_score(test_labels_sorted, imputed_predictions, average="macro"), f1_score(test_labels_sorted, imputed_predictions, average="weighted")
 
@@ -292,16 +294,17 @@ class Evaluator(object):
             result_temp = EvaluationResult(self._task, target_column)
             
             for _ in range(num_repetitions):
-                if (_ == 0):#PD
-                    #seed = 42#PD
-                    print("Durchgang und Seed", _ )#, seed)#PD
-                elif (_ == 1):#PD
-                    #seed = 50#PD
-                    print("Durchgang und Seed", _ )#, seed)#PD
-                elif (_ == 2):#PD
-                    #seed = 56#PD
-                    print("Durchgang und Seed", _ )#, seed)#PD
+                # if (_ == 0):#PD
+                #     #seed = 42#PD
+                #     print("Durchgang und Seed", _ )#, seed)#PD
+                # elif (_ == 1):#PD
+                #     #seed = 50#PD
+                #     print("Durchgang und Seed", _ )#, seed)#PD
+                # elif (_ == 2):#PD
+                #     #seed = 56#PD
+                #     print("Durchgang und Seed", _ )#, seed)#PD
                 
+              
                 train_data_corrupted, test_data_corrupted = self._discard_values(
                     task=self._task,
                     to_discard_columns=self._discard_in_columns,
@@ -320,7 +323,8 @@ class Evaluator(object):
                     print("we are going through test_data_corrupted check")#PD
                     test_data_corrupted.loc[random.choice(test_data_corrupted.index), target_column] = nan
                 
-
+                #train_data_corrupted.to_csv("datasets_for_test/train_data_corrupted.csv")
+                #test_data_corrupted.to_csv("datasets_for_test/test_data_corrupted.csv")
 
                 if result_temp._baseline_performance is None:
                     # fit task's baseline model and get performance
@@ -328,6 +332,8 @@ class Evaluator(object):
                     self._task._baseline_model = base_model
 
                     corrupted_test, test_labels_sorted = self._task.preprocess_and_transform_test(test_data_corrupted.copy(),self._task.test_labels.copy(), feature_transformer)
+                    #print(test_data_corrupted.sort_index())
+                    #print(corrupted_test)
                     corrupted_predictions  = self._task._baseline_model.predict(corrupted_test)
                     result_temp._baseline_performance = f1_score(test_labels_sorted, corrupted_predictions, average="micro"), f1_score(test_labels_sorted, corrupted_predictions, average="macro"), f1_score(test_labels_sorted, corrupted_predictions, average="weighted")
 
@@ -343,6 +349,15 @@ class Evaluator(object):
 
                 train_imputed, train_imputed_mask = imputer.transform(train_data_corrupted)
                 test_imputed, test_imputed_mask = imputer.transform(test_data_corrupted)
+
+                #print(train_data_corrupted)
+                #print(train_imputed)
+
+                # train_imputed.to_csv("datasets_for_test/train_imputed.csv")
+                # train_imputed_mask.to_csv("datasets_for_test/train_imputed_mask.csv")
+
+                # test_imputed.to_csv("datasets_for_test/test_imputed.csv")
+                # test_imputed_mask.to_csv("datasets_for_test/test_imputed_mask.csv")
                 
                 
 #                 if result_temp._baseline_performance is None:
@@ -371,7 +386,8 @@ class Evaluator(object):
                     train_imputed_mask=train_imputed_mask[target_column],
                     test_imputed_mask=test_imputed_mask[target_column],
                     elapsed_time=elapsed_time,
-                    best_hyperparameters=imputer.get_best_hyperparameters()
+                    #best_hyperparameters=imputer.get_best_hyperparameters()
+                    best_hyperparameters=""
                 )
 
             result[target_column] = result_temp.finalize()
