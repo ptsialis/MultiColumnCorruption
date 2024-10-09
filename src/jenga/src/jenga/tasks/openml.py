@@ -44,7 +44,7 @@ class OpenMLTask(Task):
         X, y = fetch_openml(data_id=openml_id, as_frame=True, return_X_y=True, cache=False)
 
         seed=32 #PD
-        train_data, test_data, train_labels, test_labels = train_test_split(X, y, train_size=train_size)
+        train_data, test_data, train_labels, test_labels = train_test_split(X, y, train_size=train_size,shuffle=False)
         #test_data.to_csv("corrupted_original_test_data_after_pull.csv")#PD
         categorical_columns = [
             column for column in X.columns

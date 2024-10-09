@@ -8,10 +8,10 @@ import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV,RandomizedSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
-
+from autogluon.tabular import TabularPredictor
 from .utils import set_seed
 
 logger = logging.getLogger()
@@ -205,14 +205,15 @@ class SklearnBaseImputer(BaseImputer):
         # that are use for prediction, i.e. predictor variables
         categorical_preprocessing = Pipeline(
             [
-                ('mark_missing', SimpleImputer(strategy='most_frequent')),
+                #('mark_missing', SimpleImputer(strategy='most_frequent')),
                 ('encode', self._encoder)
             ]
         )
 
         numeric_preprocessing = Pipeline(
             [
-                ('mark_missing', SimpleImputer(strategy='mean')),
+                #('mark_missing', SimpleImputer(strategy='mean')),
+                ('scale',  StandardScaler()),
             ]
         )
 
@@ -231,7 +232,7 @@ class SklearnBaseImputer(BaseImputer):
             pipeline = Pipeline(
                 [
                     ('features', feature_transformation),
-                    ('scale',  StandardScaler()),
+                    #('scale',  StandardScaler()),
                     ('categorical_imputer', self._categorical_imputer[0])
                 ]
             )
@@ -253,7 +254,7 @@ class SklearnBaseImputer(BaseImputer):
             pipeline = Pipeline(
                 [
                     ('features', feature_transformation),
-                    ('scale',  StandardScaler()),
+                    #('scale',  StandardScaler()),
                     ('numerical_imputer', self._numerical_imputer[0])
                 ]
             )
@@ -274,11 +275,25 @@ class SklearnBaseImputer(BaseImputer):
             # If there are missing values in predictor columns, they getting imputed (marked) beforehand to use them for fitting.
 
             pipeline, hyperparameter_grid = self._get_pipeline_and_hyperparameter_grid(column)
-            search = GridSearchCV(pipeline, hyperparameter_grid, cv=5, n_jobs=-1)
-
+            #search = GridSearchCV(pipeline, hyperparameter_grid, cv=3, n_jobs=-1)
+            #print(hyperparameter_grid)
+            search = RandomizedSearchCV(estimator = pipeline, param_distributions = hyperparameter_grid, n_iter = 10, cv = 3,  random_state=42, n_jobs = -1)
             missing_mask = data[column].isna()
-            self._predictors[column] = search.fit(data[~missing_mask], data.loc[~missing_mask, column]).best_estimator_
-            logger.debug(f"Predictor for column '{column}' reached {search.best_score_}")
+
+            data_to_impute = data.copy()
+
+            data_to_impute_missing = data_to_impute[~missing_mask]
+
+            excluded_model_types = ['KNN','CAT','FASTAI','XT','GBM',"RF","NN_TORCH"]
+            imputer = TabularPredictor(label=column).fit(data_to_impute_missing,time_limit=600,presets="best_quality",excluded_model_types=excluded_model_types,hyperparameters={ 'XGB':{}},feature_generator=None)
+            #print(data[~missing_mask])
+            #print(data.loc[~missing_mask, column].drop(columns=column))
+            #data[~missing_mask].to_csv("datamask.csv")
+            #self._predictors[column] = imputer.fit(data[~missing_mask].drop(columns=column), data.loc[~missing_mask, column]).best_estimator_
+            #imputer.delete_models(models_to_keep='best', dry_run=False)
+            self._predictors[column] = imputer
+
+            #logger.debug(f"Predictor for column '{column}' reached {search.best_score_}")
 
         self._fitted = True
 
@@ -301,7 +316,8 @@ class SklearnBaseImputer(BaseImputer):
             amount_missing_in_columns = missing_mask.sum()
 
             if amount_missing_in_columns > 0:
-                data.loc[missing_mask, column] = self._predictors[column].predict(data.loc[missing_mask])
+                print(self._predictors[column])
+                data.loc[missing_mask, column] = self._predictors[column].predict(data.loc[missing_mask].drop(columns=column))
 
                 logger.debug(f'Imputed {amount_missing_in_columns} values in column {column}')
 
